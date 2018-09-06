@@ -1,0 +1,151 @@
+sudo yum update
+sudo yum grouplist
+sudo yum groupinstall "Java Development"
+javac
+vi sample.java
+java sample
+
+//create text file
+Creating a text file (note that this will overwrite the file if it already exists):
+try{
+PrintWriter writer = new PrintWriter(&quot;the-file-name.txt&quot;, &quot;UTF-8&quot;);
+writer.println(&quot;The first line&quot;);
+writer.println(&quot;The second line&quot;);
+writer.close();
+} catch (IOException e) {
+// do something
+}
+
+//create bucket with java
+public class CreateBucket {
+private static String bucketName = &quot;npp2&quot;;
+public static void main(String[] args) throws IOException {
+AmazonS3 s3client = new AmazonS3Client(new ProfileCredentialsProvider());
+s3client.setRegion(Region.getRegion(Regions.DEFAULT_REGION));
+try {
+if(!(s3client.doesBucketExist(bucketName)))
+{
+// Note that CreateBucketRequest does not specify region. So bucket is
+// created in the region specified in the client.
+s3client.createBucket(new CreateBucketRequest(
+bucketName));
+
+}
+// Get location.
+String bucketLocation = s3client.getBucketLocation(new
+GetBucketLocationRequest(bucketName));
+System.out.println(&quot;bucket location = &quot; + bucketLocation);
+} catch (AmazonServiceException ase) {
+System.out.println(&quot;Caught an AmazonServiceException, which &quot; +
+&quot;means your request made it &quot; +
+&quot;to Amazon S3, but was rejected with an error response&quot; +
+&quot; for some reason.&quot;);
+System.out.println(&quot;Error Message: &quot; + ase.getMessage());
+System.out.println(&quot;HTTP Status Code: &quot; + ase.getStatusCode());
+System.out.println(&quot;AWS Error Code: &quot; + ase.getErrorCode());
+System.out.println(&quot;Error Type: &quot; + ase.getErrorType());
+System.out.println(&quot;Request ID: &quot; + ase.getRequestId());
+} catch (AmazonClientException ace) {
+System.out.println(&quot;Caught an AmazonClientException, which &quot; +
+&quot;means the client encountered &quot; +
+&quot;an internal error while trying to &quot; +
+&quot;communicate with S3, &quot; +
+&quot;such as not being able to access the network.&quot;);
+System.out.println(&quot;Error Message: &quot; + ace.getMessage());
+}
+}
+}
+
+
+
+
+
+public class UploadObjectSingleOperation {
+private static final String bucketName = &quot;npp1&quot;; // Bucket name
+private static final String keyName = &quot;3.txt&quot;; // Key name
+private static final String uploadFileName = &quot;C:\\Users\\Prakash
+P\\Documents\\NetBeansProjects\\FirstAwsJava\\3.txt&quot;; //File Path
+public static void main(String[] args) throws IOException {
+AmazonS3 s3client = new AmazonS3Client(new ProfileCredentialsProvider());
+try {
+System.out.println(&quot;Uploading a new object to S3 from a file\n&quot;);
+File file = new File(uploadFileName);
+s3client.putObject(new PutObjectRequest(
+bucketName, keyName, file));
+} catch (AmazonServiceException ase) {
+System.out.println(&quot;Caught an AmazonServiceException, which &quot; +
+&quot;means your request made it &quot; +
+&quot;to Amazon S3, but was rejected with an error response&quot; +
+&quot; for some reason.&quot;);
+System.out.println(&quot;Error Message: &quot; + ase.getMessage());
+System.out.println(&quot;HTTP Status Code: &quot; + ase.getStatusCode());
+System.out.println(&quot;AWS Error Code: &quot; + ase.getErrorCode());
+System.out.println(&quot;Error Type: &quot; + ase.getErrorType());
+System.out.println(&quot;Request ID: &quot; + ase.getRequestId());
+} catch (AmazonClientException ace) {
+System.out.println(&quot;Caught an AmazonClientException, which &quot; +
+&quot;means the client encountered &quot; +
+&quot;an internal error while trying to &quot; +
+&quot;communicate with S3, &quot; +
+&quot;such as not being able to access the network.&quot;);
+System.out.println(&quot;Error Message: &quot; + ace.getMessage());
+}
+}
+}
+
+
+
+
+public class GetObject {
+private static String bucketName = &quot;npp1&quot;;
+private static String key = &quot;1.txt&quot;;
+public static void main(String[] args) throws IOException {
+@SuppressWarnings(&quot;deprecation&quot;)
+AmazonS3 s3Client = new AmazonS3Client(new ProfileCredentialsProvider());
+try {
+System.out.println(&quot;Downloading an object&quot;);
+S3Object s3object = s3Client.getObject(new GetObjectRequest(
+bucketName, key));
+System.out.println(&quot;Content-Type: &quot; +
+s3object.getObjectMetadata().getContentType());
+displayTextInputStream(s3object.getObjectContent());
+// Get a range of bytes from an object.
+GetObjectRequest rangeObjectRequest = new GetObjectRequest(
+bucketName, key);
+rangeObjectRequest.setRange(0, 10);
+S3Object objectPortion = s3Client.getObject(rangeObjectRequest);
+System.out.println(&quot;Printing bytes retrieved.&quot;);
+displayTextInputStream(objectPortion.getObjectContent());
+} catch (AmazonServiceException ase) {
+System.out.println(&quot;Caught an AmazonServiceException, which&quot; +
+&quot; means your request made it &quot; +
+&quot;to Amazon S3, but was rejected with an error response&quot; +
+&quot; for some reason.&quot;);
+System.out.println(&quot;Error Message: &quot; + ase.getMessage());
+System.out.println(&quot;HTTP Status Code: &quot; + ase.getStatusCode());
+System.out.println(&quot;AWS Error Code: &quot; + ase.getErrorCode());
+System.out.println(&quot;Error Type: &quot; + ase.getErrorType());
+System.out.println(&quot;Request ID: &quot; + ase.getRequestId());
+} catch (AmazonClientException ace) {
+System.out.println(&quot;Caught an AmazonClientException, which means&quot;+
+&quot; the client encountered &quot; +
+&quot;an internal error while trying to &quot; +
+&quot;communicate with S3, &quot; +
+&quot;such as not being able to access the network.&quot;);
+System.out.println(&quot;Error Message: &quot; + ace.getMessage());
+}
+}
+private static void displayTextInputStream(InputStream input)
+throws IOException {
+// Read one text line at a time and display.
+BufferedReader reader = new BufferedReader(new
+InputStreamReader(input));
+while (true) {
+String line = reader.readLine();
+if (line == null) break;
+System.out.println(&quot; &quot; + line);
+}
+System.out.println(); } }
+
+
+
